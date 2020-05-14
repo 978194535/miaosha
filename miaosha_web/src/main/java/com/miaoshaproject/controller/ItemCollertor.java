@@ -2,6 +2,9 @@ package com.miaoshaproject.controller;
 
 import com.miaoshaoproject.service.ItemService;
 import com.miaoshaoproject.service.Model.ItemModel;
+import com.miaoshaproject.config.*;
+import com.miaoshaproject.error.BusinessException;
+import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.response.commonReturnType;
 import com.miaoshaproject.viewObject.ItemVo;
 import org.joda.time.format.DateTimeFormat;
@@ -12,13 +15,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Controller("/item")
 @RequestMapping("/item")
 @CrossOrigin(origins = {"*"},allowCredentials = "true")
 public class ItemCollertor extends BaseController {
     @Autowired
+    CacheTemplate cacheTemplate;
+    @Autowired
     private ItemService itemService;
+    @Autowired
+    private RedisUtil redisUtil;
     //创建商品
     @RequestMapping(value = "/create",method = {RequestMethod.POST},consumes = {CONTENT_TYPE_FORMED})
     @ResponseBody
@@ -41,11 +49,37 @@ public class ItemCollertor extends BaseController {
     //获取商品
     @RequestMapping(value = "/get",method = {RequestMethod.GET})
     @ResponseBody
-    public commonReturnType getItem(@RequestParam(name = "id")Integer id){
-        ItemModel itemModel = itemService.getItemById(id);
-        ItemVo itemVo = this.convert(itemModel);
-        return commonReturnType.create(itemVo);
+    public commonReturnType getItem(@RequestParam(name = "id")Integer id) throws Exception {
+//        RedisBloomFilter redisBloomFilter = new RedisBloomFilter();
+//        if(!redisBloomFilter.isExist(String.valueOf(id))){
+//            throw new BusinessException(EmBusinessError.USER_NOT_LOGIN);
+//        }
+//        RedisLock redisLock = new RedisLock();
+//        redisLock.lock(String.valueOf(id));
+//        ItemModel itemModel = (ItemModel)redisUtil.get(String.valueOf(id));
+//        if(itemModel==null){
+//            ItemModel itemModel1 = itemService.getItemById(id);
+//            ItemVo itemVo = this.convert(itemModel1);
+//            redisLock.unlock(String.valueOf(id));
+//            return commonReturnType.create(itemVo);
+//        }else {
+//            ItemVo itemVo = this.convert(itemModel);
+//            redisLock.unlock(String.valueOf(id));
+//            return commonReturnType.create(itemVo);
+//        }
+        return cacheTemplate.redisaa("ID", 10, TimeUnit.HOURS, new CacheLoadAble<ItemModel>() {
+            @Override
+            public ItemModel load() {
+                return null;
+            }
+        });
+
+
     }
+
+
+
+
     //获取商品列表
     @RequestMapping(value = "/getlist",method = {RequestMethod.GET})
     @ResponseBody

@@ -36,26 +36,26 @@ public class OrderServiceImpl implements OrderService {
     public OrderModel createOrder(Integer userId, Integer itemId, Integer promoId, Integer amount) throws BusinessException {
         //校验下单状态
        ItemModel itemModel =  itemService.getItemById(itemId);
-       if(itemModel==null){
-           throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"商品信息不存在");
-       }
-        userModel userModel =  userService1.getUserById(userId);
-       if(userModel==null){
-           throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"用户不存在");
-       }
-       if(amount<=0||amount>99){
-           throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"数量信息不正确");
-       }
+//       if(itemModel==null){
+//           throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"商品信息不存在");
+//       }
+//        userModel userModel =  userService1.getUserById(userId);
+//       if(userModel==null){
+//           throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"用户不存在");
+//       }
+//       if(amount<=0||amount>99){
+//           throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"数量信息不正确");
+//       }
        //校验活动信息
-        if(promoId!=null){
-            //(1)校验对应活动是否存在这个适用商品
-            if(promoId.intValue()!=itemModel.getPromoModel().getId()){
-                throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"活动信息不正确");
-                //校验活动是否在进行中
-            }else if(itemModel.getPromoModel().getStatus().intValue()!=2){
-                throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"活动不在进行中");
-            }
-        }
+//        if(promoId!=null){
+//            //(1)校验对应活动是否存在这个适用商品
+//            if(promoId.intValue()!=itemModel.getPromoModel().getId()){
+//                throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"活动信息不正确");
+//                //校验活动是否在进行中
+//            }else if(itemModel.getPromoModel().getStatus().intValue()!=2){
+//                throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"活动不在进行中");
+//            }
+//        }
         //落单减库存
         boolean result = itemService.decreaseStock(itemId,amount);
        if(!result){
@@ -67,9 +67,9 @@ public class OrderServiceImpl implements OrderService {
        orderModel.setItemId(itemId);
        orderModel.setUserId(userId);
        if(promoId!=null){
-        orderModel.setItemPrice((itemModel.getPromoModel().getPromoItemPrice()).doubleValue());
-       }else {
            orderModel.setItemPrice(itemModel.getPrice());
+       }else {
+           orderModel.setItemPrice((itemModel.getPromoModel().getPromoItemPrice()).doubleValue());
        }
 
        orderModel.setPromoId(promoId);
@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    private String generateOrderNo(){
+    public String generateOrderNo(){
         //订单号有16位,
         StringBuilder stringBuilder = new StringBuilder();
         // 前8位为年月日

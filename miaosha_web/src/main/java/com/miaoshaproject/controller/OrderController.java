@@ -38,4 +38,10 @@ public class OrderController extends BaseController {
         return commonReturnType.create(null);
 
     }
+    @RequestMapping(value = "/test",method = {RequestMethod.GET})
+    public commonReturnType test() throws BusinessException {
+        OrderModel orderModel = orderService.createOrder(1,1,1,1);
+        return commonReturnType.create(null);
+
+    }
 }
